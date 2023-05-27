@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Expense Tracker</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    .delete-icon {
+      color: red;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container mt-4">
+
+    <h1>Expense Tracker</h1>
+
+    <form>
+      <div class="form-group">
+        <label for="expense-name">Name:</label>
+        <input type="text" class="form-control" id="expense-name" required>
+      </div>
+      <div class="form-group">
+        <label for="expense-amount">Amount:</label>
+        <input type="number" class="form-control" id="expense-amount" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Add Expense</button>
+    </form>
+
+    <table class="table mt-4">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Amount</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="expense-list">
+      </tbody>
+    </table>
+
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper-core.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    // Load expenses from local storage
+    let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+
+    // Display expenses in the table
+    function displayExpenses() {
+      let expenseList = '';
+      expenses.forEach(function(expense, index) {
+        expenseList += `
+          <tr>
+            <td>${expense.name}</td>
+            <td>$${expense.amount.toFixed(2)}</td>
+            <td>
+              <span class="delete-icon" data-index="${index}">&times;</span>
+            </td>
+          </tr>
+        `;
+      });
+      $('#expense-list').html(expenseList);
+    }
+
+    // Save expenses to local storage
+    function saveExpenses() {
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+    }
+
+    // Add expense event listener
+    $('form').submit(function(e) {
+      e.preventDefault();
+      let name = $('#expense-name').val();
+      let amount = parseFloat($('#expense-amount').val());
+      if (name && amount) {
+        // Create new expense object
+        let expense = {
+          name: name,
+          amount: amount
+        };
+        // Add expense object to expenses array
+        expenses.push(expense);
+        // Save expenses to local storage
+        saveExpenses();
+        // Display expenses in the table
+        displayExpenses();
+        // Clear form inputs
+        $('#expense-name').val('');
+        $('#expense-amount').val('');
+      }
+    });
+
+    // Delete expense event listener
+    $('#expense-list').on('click', '.delete-icon', function() {
+      let index = $(this).data('index');
+      expenses.splice(index, 1);
+      // Save expenses to local storage
+      saveExpenses();
+      // Display expenses in the table
+      displayExpenses();
+    });
+
+    // Display expenses on page load
+    displayExpenses();
+
+  </script>
+
+</body>
+</html>
